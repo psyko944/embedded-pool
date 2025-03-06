@@ -3,10 +3,10 @@
 
 void	init_timer()
 {
-	TCCR1A |= (1 << COM1A1) | (1 << WGM11); // set COM1A1 at 1 and WGM13 for use PMW. WGM11 is on register a 
+	TCCR1A |= (1 << COM1A1) | (1 << WGM11); // set COM1A1 at 1 and WGM11 for use PMW. WGM11 is on register a 
 	TCCR1B |=  (1<< WGM13)  | (1 << CS10) | (1 << CS12); // set for pwm and for prescaler at 1024. WGM13 is on register b
 	ICR1 = (16000000UL / 1024UL) - 1; // set top value
-	OCR1A = ICR1 / 10; // duty cycle
+	OCR1A = ICR1 / 10UL; // light on while duty cycle 
 }
 
 int main()
