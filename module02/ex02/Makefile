@@ -19,5 +19,10 @@ hex:
 flash:
 	$(AVRDUDE) -p $(MICROCONTROLLER) -c $(PROGRAMMER) -P $(PORT) -b $(BAUD) -U flash:w:$(TARGET).hex:i
 
+screen: all
+	screen /dev/ttyUSB0 $(BAUD)
+	
 clean:
 	rm -f $(TARGET).bin $(TARGET).hex
+
+.PHONY: all hex flash clean screen

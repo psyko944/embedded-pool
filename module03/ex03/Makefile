@@ -9,7 +9,7 @@ TARGET = main
 PORT = /dev/ttyUSB0
 BAUD = 115200
 
-SRC = main.c uart.c
+SRC = main.c uart.c utils.c
 OBJ = $(SRC:.c=.o)
 
 all: hex flash
