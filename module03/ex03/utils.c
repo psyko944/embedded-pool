@@ -73,14 +73,15 @@ uint8_t	ft_atoi(const char *str)  // convert hexadecimal string to unsigned inte
 	uint8_t	i;
 	uint16_t	res;
 	char base[17] = "0123456789ABCDEF";
-	i = 0;
 	res = 0;
-	while (*str == ' ' || (9 <= *str && *str <= 13))
-		++str;
-	while (is_in_base(to_upper(str[i]), base) && i < 2)
+	// while (*str == ' ' || (9 <= *str && *str <= 13))
+	// ++str;
+	// i = ft_strlen(str) - 1;
+	i=0;
+	while (is_in_base(to_upper(*str), base) != -1)
 	{
-		res = res * 16 + (is_in_base(to_upper(str[i]), base));
-		i++;
+		res = res * 16 + (is_in_base(to_upper(*str), base));
+		str++;
 	}
 	return (res);
 }

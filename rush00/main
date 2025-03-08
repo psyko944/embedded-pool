@@ -1,0 +1,109 @@
+#include "atmega328p_common.h"
+
+// void	init_leds()
+// {
+// 	DDRD = R | G | B; // init 
+// }
+
+// void	init_rgb()
+// {
+// 	init_leds();
+// }
+
+void	twi_putchar(uint8_t data) 
+{
+  TWDR = data;
+  TWCR = (1 << TWINT) | (1 << TWEN);
+  while (!(TWCR & (1 << TWINT)));
+  if ((TWSR & 0xF8) != TW_MT_DATA_ACK) {
+    // ERROR();
+	return;
+  }
+}
+
+void	twi_put_address(uint8_t address)
+{
+	TWDR = address;
+	 TWCR = (1 << TWINT) | (1 << TWEN);
+    while (!(TWCR & (1 << TWINT)));
+    if ((TWSR & 0xF8) != TW_MT_SLA_ACK) {
+        return ;
+    }
+}
+
+uint8_t i2c_read_data(uint8_t ack) {
+    if (ack) {
+        TWCR = (1 << TWINT) | (1 << TWEN) | (1 << TWEA); // Send ACK
+    } else {
+        TWCR = (1 << TWINT) | (1 << TWEN); // Send NACK
+    }
+
+    while (!(TWCR & (1 << TWINT)));
+    return TWDR;
+}
+
+
+void i2c_read_address(uint8_t address) {
+    TWDR = address | 0x01; // Read bit set
+    TWCR = (1 << TWINT) | (1 << TWEN);
+    while (!(TWCR & (1 << TWINT)));
+    if ((TWSR & 0xF8) != TW_MR_SLA_ACK) {
+        // Handle error: Slave address not acknowledged
+    }
+}
+
+void	twi_stop()
+{
+	TWCR = (1 << TWINT) | (1 << TWEN) | (1 << TWSTO);
+}
+
+void	init_twi()
+{
+	TWSR = 0x00;
+	TWBR = 72;
+	// DDRC = (1 << PC4) | (1 << PC5);
+	
+}
+
+void	start(uint8_t address, uint8_t rw)
+{
+	TWCR = (1 << TWINT) | (1 <<TWSTA) | ( 1<< TWEN);
+	while (!(TWCR & (1 << TWINT)));
+	if ((TWSR & 0xF8) != TW_START && (TWSR & 0xF8) != TW_REP_START) {
+		return;
+	}
+	TWDR = (address << 1) | rw;
+	TWCR = (1 << TWINT) | (1 << TWEN);
+	while (!(TWCR & (1 << TWINT)));
+	if ((TWSR & 0xF8) != (rw ? TW_MR_SLA_ACK : TW_MT_SLA_ACK)) {
+		return;
+	}
+}
+
+int main()
+{
+	uint8_t pos = 0;
+	init_twi();
+	init_uart();
+	while (1)
+	{
+		// while (!(TWCR & (1 << TWINT)));
+		// if ((TWSR & 0xF8) != TW_START)
+		// 	return 1;
+		// TWDR = SLA_W;
+		// TWCR = (1 << TWINT) | (1 << TWEN);
+		// while (!(TWCR & (1 << TWINT)));
+		// if ((TWSR & 0xF8) != TW_MT_SLA_ACK)
+		// 	return 2;
+		start(0x08, TW_WRITE);
+		twi_putchar('C');
+		twi_stop();
+		while (i < 4)
+		{
+		}
+		_delay_ms(1000);
+		// set_rgb(255,0,0);
+	// PORTD |= R;
+	}
+	return 0;  // return 0 if the program is successfull
+}
