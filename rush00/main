@@ -31,6 +31,14 @@ void	twi_put_address(uint8_t address)
     }
 }
 
+uint8_t twi_getchar(uint8_t ack) {
+    TWCR = (1 << TWINT) | (1 << TWEN) | (ack ? (1 << TWEA) : 0); //ACK or NACK
+	if (ack == 0)
+		uart_printstr("non recu");
+    while (!(TWCR & (1 << TWINT)));
+    return TWDR;
+}
+
 uint8_t i2c_read_data(uint8_t ack) {
     if (ack) {
         TWCR = (1 << TWINT) | (1 << TWEN) | (1 << TWEA); // Send ACK
@@ -61,14 +69,14 @@ void	init_twi()
 {
 	TWSR = 0x00;
 	TWBR = 72;
-	// DDRC = (1 << PC4) | (1 << PC5);
-	
+	// DDRC = (1 << PC4) | (1 << PC5);	
 }
 
 void	start(uint8_t address, uint8_t rw)
 {
 	TWCR = (1 << TWINT) | (1 <<TWSTA) | ( 1<< TWEN);
 	while (!(TWCR & (1 << TWINT)));
+	uart_printstr("we will read data\r\n");
 	if ((TWSR & 0xF8) != TW_START && (TWSR & 0xF8) != TW_REP_START) {
 		return;
 	}
@@ -85,25 +93,21 @@ int main()
 	uint8_t pos = 0;
 	init_twi();
 	init_uart();
+	DDRB = (1 << PB0)  | (1 << PB4);
 	while (1)
 	{
-		// while (!(TWCR & (1 << TWINT)));
-		// if ((TWSR & 0xF8) != TW_START)
-		// 	return 1;
-		// TWDR = SLA_W;
-		// TWCR = (1 << TWINT) | (1 << TWEN);
-		// while (!(TWCR & (1 << TWINT)));
-		// if ((TWSR & 0xF8) != TW_MT_SLA_ACK)
-		// 	return 2;
 		start(0x08, TW_WRITE);
+		PORTB |= (1 << PB0);
 		twi_putchar('C');
 		twi_stop();
-		while (i < 4)
-		{
-		}
-		_delay_ms(1000);
-		// set_rgb(255,0,0);
-	// PORTD |= R;
+		_delay_ms(500);
+		start(0x08, TW_READ);
+		uint8_t received_data = twi_getchar(1); // ACK to receive more data
+		if (received_data == 's')
+			PORTB |= (1 << PB4);
+        uart_tx(received_data); // Send received data via UART
+        _delay_ms(500); // Delay before next cycle
+        twi_stop();
 	}
 	return 0;  // return 0 if the program is successfull
 }

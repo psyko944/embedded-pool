@@ -2,7 +2,7 @@
 # define ATMEGA328P_COMMON_H
 # include <avr/io.h>
 # include <util/delay.h>
-# include <util/twi.h>
+# include <avr/interrupt.h>
 # define BAUD 115200
 # define CPU 16000000UL
 # define PRESCALER 1024UL
@@ -10,6 +10,10 @@
 # define R (1 << PD5)
 # define G (1 << PD6)
 # define B (1 << PD3)
+# define D1 (1 << PB0)
+# define D2 (1 << PB1)
+# define D3 (1 << PB2)
+# define D4 (1 << PB4)
 
 # define Y R | G
 # define C B | G
@@ -44,6 +48,5 @@ uint8_t is_xdigit(int c);
 uint8_t is_valid_color(const char *buffer);
 uint8_t	ft_atoi(const char *str);
 uint8_t	ft_strlcpy(char *dest, const char *src, uint8_t size);
-void	*ft_memset(void *s, int c, uint64_t n);
 
 #endif

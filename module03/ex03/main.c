@@ -9,7 +9,7 @@ void	init_leds() // init register for led rgb
 
 void	init_rgb()
 {
-	init_leds();
+	// init_leds();
 	TCCR0A |= (1 << COM0A1) | (1 << COM0B1) | (1 << WGM01) | (1 << WGM00); // init register in fast pwm
 	TCCR0B |= (1 << CS01);
 
@@ -22,9 +22,16 @@ void	init_rgb()
 
 void	set_rgb(uint8_t r, uint8_t g, uint8_t b)
 {
+	init_leds();
 	OCR0A = g;	// green led in register OCR0A
 	OCR0B = r;	// red led in register OCR0B
 	OCR2B = b;	// blue led in register OCR2b
+	if (r == 0)
+		DDRD &= ~(R);
+	if (g == 0)
+		DDRD &= ~(G);
+	if (b == 0)
+		DDRD &= ~(B);
 }
 
 void	hex_to_rgb(const char *hex_color_code) // break hexa code in 3 str for r, g, b then convert

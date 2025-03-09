@@ -1,0 +1,104 @@
+#include "atmega328p_common.h"
+
+#define SLAVE_ADDRESS 0x08 // Adresse de l'esclave
+
+void twi_slave_init(uint8_t address) {
+  TWAR = (address << 1); // Définir l'adresse de l'esclave
+  TWCR = (1 << TWEA) | (1 << TWEN) | (1 << TWINT);
+}
+
+// int main(void) 
+// {
+//   DDRB = (1 << PB0) | (1 << PB4);
+//   twi_slave_init(SLAVE_ADDRESS);
+//   uint8_t data;
+//   init_uart();
+//   while (1) 
+//   {
+//     while (!(TWCR & (1 << TWINT))); // Attendre une interruption TWI
+//     if ((TWSR & 0xF8) == TW_SR_SLA_ACK || (TWSR & 0xF8) == TW_SR_DATA_ACK)
+//     {
+//       data = TWDR;
+//       // Traiter les données reçues ici
+//       if ((TWSR & 0xF8) == TW_SR_DATA_ACK)
+//       {
+//           // if (data == 'A')
+//           //   PORTB |= (1 << PB0);
+//           // else
+//           //   PORTB |= (1 << PB4);
+//           if (data == 'C')
+//           {
+//             PORTB |= (1 << PB0);
+//             uart_tx(data);
+//           }
+//           else
+//             PORTB = 0;
+//       }
+//       TWCR = (1 << TWINT) | (1 << TWEA) | (1 << TWEN); // Répondre avec ACK
+//     }
+//     else
+//       TWCR = (1 << TWINT) | (1 << TWEA) | (1 << TWEN); // Répondre avec ACK
+//   }
+// }
+
+int main(void)
+{
+  DDRB = (1 << PB0);
+  twi_slave_init(SLAVE_ADDRESS);
+  uint8_t received_data;
+  char  str[32];
+  uint8_t i = 0;
+  init_uart();
+  while (1)
+  {
+    while (!(TWCR & (1 << TWINT)));
+    switch (TWSR & 0xF8)
+    {
+      case  TW_SR_SLA_ACK:
+        received_data = TWDR;
+        if ((received_data >> 1) != SLAVE_ADDRESS) {
+          // Incorrect address, send NACK
+          TWCR = (1 << TWINT) | (1 << TWEN);
+          continue; // Skip the rest of the case
+      }
+        ft_memset(str, 0, 32);
+        i = 0;
+        TWCR = (1 << TWINT) | (1 << TWEA) | (1 << TWEN);
+        break;
+      case  TW_SR_DATA_ACK:
+        received_data = TWDR;
+        if (received_data == 'C')
+        {
+          str[0] = 's';
+          str[1] = '\0';
+          // ft_strlcpy(str, "salut", 6);
+          i = 0;
+        }
+        uart_tx(received_data);
+        TWCR = (1 << TWINT) | (1 << TWEA) | (1 << TWEN);
+        break;
+      case TW_ST_SLA_ACK:
+        i=0;
+      case TW_ST_DATA_ACK:
+        if (str[i] != '\0')
+        {
+          TWDR = str[i++];
+          TWCR = (1 << TWINT) | (1 << TWEN);
+        }
+        else
+            TWCR = (1 << TWINT) | (1 << TWEA) | (1 << TWEN);
+        break;
+      
+      case  TW_SR_STOP:
+        TWCR = (1 << TWINT) | (1 << TWEA) | (1 << TWEN);
+        break;
+      case  TW_ST_DATA_NACK:
+        TWCR = (1 << TWINT) | (1 << TWEA) | (1 << TWEN);
+        break;
+
+      default:
+        TWCR = (1 << TWINT) | (1 << TWEA) | (1 << TWEN);
+        break;
+    }
+  }
+}

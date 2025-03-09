@@ -9,15 +9,11 @@ TARGET = main
 PORT = /dev/ttyUSB0
 BAUD = 115200
 
-SRC = main.c uart.c utils.c
-OBJ = $(SRC:.c=.o)
 
 all: hex flash
 
-$(TARGET).bin: $(OBJ)
-	$(CC) $(CFLAGS) -o $@ $^
-
-hex: $(TARGET).bin
+hex:
+	$(CC) $(CFLAGS) -o $(TARGET).bin $(TARGET).c
 	$(OBJCOPY) -O ihex $(TARGET).bin $(TARGET).hex
 
 flash:
@@ -27,7 +23,6 @@ screen: all
 	screen /dev/ttyUSB0 $(BAUD)
 	
 clean:
-	rm -f $(OBJ)
 	rm -f $(TARGET).bin $(TARGET).hex
 
 .PHONY: all hex flash clean screen
