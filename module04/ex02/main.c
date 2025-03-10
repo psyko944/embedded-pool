@@ -1,8 +1,6 @@
 #include "atmega328p_common.h"
 
 
-volatile uint8_t pushed = 0;
-
 ISR(INT0_vect)
 {
 	pushed = 1;
@@ -11,8 +9,8 @@ ISR(INT0_vect)
 int main()
 {
 	DDRB = (1 << PB0);
-	DDRD &= ~(1 << PD2);
-	PORTD |= (1 << PD2);
+	DDRD &= ~(1 << PD2) | (1 << PD4);
+	PORTD |= (1 << PD2) | (1 << PD4);
 	EICRA |= (1 << ISC01);
 	EICRA &= ~(1 << ISC00);
 	EIMSK |= (1 << INT0);
