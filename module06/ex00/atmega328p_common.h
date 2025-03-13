@@ -3,6 +3,7 @@
 # include <avr/io.h>
 # include <util/delay.h>
 # include <avr/interrupt.h>
+#include <util/twi.h>
 # define BAUD 115200
 # define CPU 16000000UL
 # define PRESCALER 1024UL
@@ -40,7 +41,7 @@ void	uart_tx(char c);	// transmit character on serial port
 void	uart_printstr(const char* str); // transmit string on serial port
 char	uart_rx(void);  // read character from serial port
 char	read_input(char *buffer, int mode); // read input and store in buffer
-void	uart_print_number(uint16_t number);
+void	uart_print_number(long number);
 void	uart_print_hexa(uint8_t number); // print number in hex on serial port
 
 //		utils functions

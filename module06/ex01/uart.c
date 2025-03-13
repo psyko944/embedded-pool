@@ -28,19 +28,48 @@ char uart_rx(void)  // read character from serial port
 	return UDR0;
 }
 
-void uart_print_number(uint16_t number) // print number on serial port
-{
-    char buffer[4];
+// void uart_print_number(long number) // print number on serial port
+// {
+//     char buffer[4];
+//     int i = 0;
+
+//     if (number == 0) {
+//         uart_tx('0');
+//         return;
+//     }
+//     while (number > 0) {
+//         buffer[i++] = (number % 10) + '0';
+//         number /= 10;
+//     }
+//     while (i > 0) {
+//         uart_tx(buffer[--i]);
+//     }
+// }
+
+void uart_print_number(long number) {  // print long number
+    char buffer[20]; 
     int i = 0;
+    int isNegative = 0;
 
     if (number == 0) {
         uart_tx('0');
         return;
     }
+
+    if (number < 0) {
+        isNegative = 1;
+        number = -number; 
+    }
+
     while (number > 0) {
         buffer[i++] = (number % 10) + '0';
         number /= 10;
     }
+
+    if (isNegative) {
+        uart_tx('-');
+    }
+
     while (i > 0) {
         uart_tx(buffer[--i]);
     }

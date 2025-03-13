@@ -10,9 +10,9 @@ int main()
 	  init_uart();
 	  while (1)
 	  {
-		ADCSRA |= (1 << ADSC);
-		while (ADCSRA & (1 << ADSC));
-		uart_print_hexa(ADCH);
+		ADCSRA |= (1 << ADSC); // trigger adc conversion
+		while (ADCSRA & (1 << ADSC)); // wait until conversion is complete
+		uart_print_hexa(ADCH); // print pot value in hexa
 		uart_printstr("\r\n");
 		_delay_ms(20);
 	}	

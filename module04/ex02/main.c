@@ -1,41 +1,32 @@
 #include "atmega328p_common.h"
 
 volatile int count = 0;
-volatile uint8_t debounce_time = 0;
 ISR(INT0_vect)
 {
-	if (!(PIND & (1 << PD2)) && debounce_time == 0)
+	if (!(PIND & (1 << PD2)) && count < 23)
 	{
-		if (count < 23)
-		{
 			count++;
+			if (count == 0x08)  // if we are at pb3, skip to pb4. pb3 begin at 0x08 = 0000 1000, we move at 0x10 = 0001 0000
+				count = 0x10;
 			PORTB = count;
-		}
-		// _delay_ms(50);
-		debounce_time = 50;
+		while (!(PIND & (1 << PD2))) // delay for avoid bouncing
+				_delay_ms(50);
 	}
 }
 
 ISR(PCINT2_vect)
 {
-	if (!(PIND & (1 << PD4)) && debounce_time == 0)
+	if (!(PIND & (1 << PD4)) && count > 0)
 	{
-		PORTB |= D1;
-		if (count > 0)
-		{
 			count--;
+			if (PORTB == 0x0F) // if we are at pb3. pb3 begin at 0x08 = 0000 1000, we move at 0x07 = 0000 0111
+				count = 0x07; // skip to pb2 instead of pb3
 			PORTB = count;
-		}	
-		_delay_ms(50);
-		debounce_time = 50;
+		while (!(PIND & (1 << PD4))) // delay for avoid bouncing
+				_delay_ms(50);
 	}
 }
 
-ISR(TIMER0_COMPA_vect)
-{
-	if (debounce_time > 0)
-		debounce_time--;
-}
 int main()
 {
 	DDRB = D1 | D2 | D3 | D4;
@@ -46,14 +37,6 @@ int main()
 	EIMSK |= (1 << INT0);
 	PCICR |= (1 << PCIE2);
 	PCMSK2 |= (1 << PCINT20);
-
-
-// Timer setup
-    TCCR0A = (1 << WGM01); // CTC mode
-    OCR0A = 156;           // Adjust for desired debounce interval
-    TIMSK0 = (1 << OCIE0A); // Enable compare match interrupt
-    TCCR0B = (1 << CS02);  // Prescaler 256
-
 	sei();
 	while (1)
 	{

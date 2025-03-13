@@ -18,7 +18,7 @@ void	init_timer_ctc()
 {
 	TCCR0A = (1 << WGM01);
 	// TCCR0B = (1 << CS00) | (1 << CS01);
-	TCCR0B = (1 << CS02);	
+	TCCR0B = (1 << CS02);	// prescaler 256
 	OCR0A = 124; // FCPU / PRESCALER / 1000 / 2
 	TIMSK0 = (1 << OCIE0A);
 }
