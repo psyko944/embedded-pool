@@ -26,6 +26,7 @@ void	i2c_start(uint8_t address, uint8_t rw)
 	while (!(TWCR & (1 << TWINT)));
 	if ((TWSR & 0xF8) != (rw ? TW_MR_SLA_ACK : TW_MT_SLA_ACK)) {
 		uart_printstr("error in ack\r\n");
+		return;
 	}
 }
 

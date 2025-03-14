@@ -4,8 +4,6 @@
 # include <util/delay.h>
 # include <avr/interrupt.h>
 #include <util/twi.h>
-# define BAUD 115200
-# define CPU 16000000UL
 # define PRESCALER 1024UL
 # define UBRRNL 8
 # define R (1 << PD5)
