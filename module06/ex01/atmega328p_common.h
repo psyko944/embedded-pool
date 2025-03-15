@@ -33,6 +33,7 @@
 # define PURPLE "\033[38;2;255;105;180m"
 # define RESET "\033[0m"
 
+uint8_t g_status;
 //		uart functions
 void	init_uart();
 void	uart_tx(char c);	// transmit character on serial port
@@ -53,7 +54,9 @@ uint8_t	ft_strlcpy(char *dest, const char *src, uint8_t size);
 void	i2c_stop();
 void	i2c_init();
 void	i2c_start(uint8_t address, uint8_t rw);
-void	i2c_write(unsigned char data, uint8_t rw);
+void	i2c_write(unsigned char data);
 void	i2c_read(void);
+uint8_t i2c_read_nack();
+uint8_t i2c_read_ack();
 
 #endif
